@@ -15,7 +15,7 @@ FLAGS = -Wno-deprecated-gpu-targets -O2 -Xcompiler -fopenmp -std=c++11
 
 all: edge
 
-edge: sobelFilter.cu lodepng.cpp
+edge: prewittFilter.cu lodepng.cpp
 	$(LINK) -o $(OUT_FILE) $(FLAGS) $^
 
 clean: 
