@@ -1,19 +1,3 @@
-/*************************************************************************************************
- * File: prewittFilter.cu
- * Date: 09/27/2017
- * 
- * Compiling: Requires a Nvidia CUDA capable graphics card and the Nvidia GPU Computing Toolkit.
- *            Linux: nvcc -Wno-deprecated-gpu-targets -O3 -o edge prewittFilter.cu lodepng.cpp -Xcompiler -fopenmp
- * 
- * Usage:   Linux: >> edge [filename.png]
- * 
- * Description: This file is meant to handle all the prewitt filter functions as well as the main
- *      function. Each prewitt filter function runs in a different way than the others, one is a basic
- *      prewitt filter running through just the cpu on a single thread, another runs through openmp 
- *      to parallelize the single thread cpu function, and the last one runs through a NVIDIA gpu
- *      to parallelize the function onto the many cores available on the gpu.
- *************************************************************************************************/
-
 #include <thread>
 #include <chrono>
 #include <time.h>
@@ -197,32 +181,4 @@ void prewitt_cpu(const byte* orig, byte* cpu, const unsigned int width, const un
     }
 }
 
-
-/************************************************************************************************
- * void prewitt_omp(const byte*, byte*, uint, uint);
- * - This function runs on the CPU but uses OpenMP to parallelize the for workload. The function
- * - is identical to the prewitt_cpu function in what it does, except there is a #pragma call for
- * - the compiler to seperate out the for loop across different cores. Each pixel is able to be 
- * - worked on independantly of all other pixels, so there is no worry of one thread messing up
- * - another thread. The resulting array is the same as the cpu function, producing an image in
- * - black and white of where edges appear in the original image.
- * 
- * Inputs: const byte* orig : the original image being evaluated
- *                byte* cpu : the image being created using the prewitt filter
- *               uint width : the width of the image
- *              uint height : the height of the image
- * 
- ***********************************************************************************************/
-void prewitt_omp(const byte* orig, byte* cpu, const unsigned int width, const unsigned int height) {
-    #pragma omp parallel for
-    for(int y = 1; y < height-1; y++) {
-        for(int x = 1; x < width-1; x++) {
-            int dx = (-1*orig[(y-1)*width + (x-1)]) + (-2*orig[y*width+(x-1)]) + (-1*orig[(y+1)*width+(x-1)]) +
-                 (orig[(y-1)*width + (x+1)]) + (2*orig[y*width+(x+1)]) + (orig[(y+1)*width+(x+1)]);
-            int dy = (orig[(y-1)*width + (x-1)]) + (2*orig[(y-1)*width+x]) + (orig[(y-1)*width+(x+1)]) +
-            (-1*orig[(y+1)*width + (x-1)]) + (-2*orig[(y+1)*width+x]) + (-1*orig[(y+1)*width+(x+1)]);
-            cpu[y*width +x] = sqrt((dx*dx)+(dy*dy));
-        }
-    }
-}
 
