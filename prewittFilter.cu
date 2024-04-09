@@ -94,12 +94,12 @@ int main(int argc, char*argv[]) {
     /** Load our img and allocate space for our modified images **/
     imgData origImg = loadImage(argv[1]);
     imgData cpuImg(new byte[origImg.width*origImg.height], origImg.width, origImg.height);
-    imgData ompImg(new byte[origImg.width*origImg.height], origImg.width, origImg.height);
+  
     imgData gpuImg(new byte[origImg.width*origImg.height], origImg.width, origImg.height);
     
     /** make sure all our newly allocated data is set to 0 **/
     memset(cpuImg.pixels, 0, (origImg.width*origImg.height));
-    memset(ompImg.pixels, 0, (origImg.width*origImg.height));
+  
 
     /** We first run the prewitt filter on just the CPU using only 1 thread **/
     auto c = std::chrono::system_clock::now();
@@ -108,8 +108,8 @@ int main(int argc, char*argv[]) {
 
     /** Next, we use OpenMP to parallelize it **/
     c = std::chrono::system_clock::now();
-    prewitt_omp(origImg.pixels, ompImg.pixels, origImg.width, origImg.height);
-    std::chrono::duration<double> time_omp = std::chrono::system_clock::now() - c;
+  
+ 
 
     /** Finally, we use the GPU to parallelize it further **/
     /** Allocate space in the GPU for our original img, new img, and dimensions **/
@@ -136,19 +136,18 @@ int main(int argc, char*argv[]) {
     /** Output runtimes of each method of prewitt filtering **/
     printf("\nProcessing %s: %d rows x %d columns\n", argv[1], origImg.height, origImg.width);
     printf("CPU execution time    = %*.1f msec\n", 5, 1000*time_cpu.count());
-    printf("OpenMP execution time = %*.1f msec\n", 5, 1000*time_omp.count());
+
     printf("CUDA execution time   = %*.1f msec\n", 5, 1000*time_gpu.count());
-    printf("\nCPU->OMP speedup:%*.1f X", 12, (1000*time_cpu.count())/(1000*time_omp.count()));
-    printf("\nOMP->GPU speedup:%*.1f X", 12, (1000*time_omp.count())/(1000*time_gpu.count()));
+
     printf("\nCPU->GPU speedup:%*.1f X", 12, (1000*time_cpu.count())/(1000*time_gpu.count()));
     printf("\n");
 
     /** Output the images of each prewitt filter with an appropriate string appended to the original image name **/
     writeImage(argv[1], "gpu", gpuImg);
     writeImage(argv[1], "cpu", cpuImg);
-    writeImage(argv[1], "omp", ompImg);
 
-    /** Free any memory leftover.. gpuImig, cpuImg, and ompImg get their pixels free'd while writing **/
+
+    /** Free any memory leftover.. gpuImig, cpuImg get their pixels free'd while writing **/
     cudaFree(gpu_orig); cudaFree(gpu_prewitt);
     return 0;
 }
