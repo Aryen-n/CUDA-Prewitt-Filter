@@ -8,7 +8,6 @@
 #define GRIDVAL 20.0 
 
 void prewitt_cpu(const byte* orig, byte* cpu, const unsigned int width, const unsigned int height);
-void prewitt_omp(const byte* orig, byte* cpu, const unsigned int width, const unsigned int height);
 
 /************************************************************************************************
  * void prewitt_gpu(const byte*, byte*, uint, uint);
