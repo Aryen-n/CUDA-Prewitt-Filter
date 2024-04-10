@@ -9,20 +9,6 @@
 
 void prewitt_cpu(const byte* orig, byte* cpu, const unsigned int width, const unsigned int height);
 
-/************************************************************************************************
- * void prewitt_gpu(const byte*, byte*, uint, uint);
- * - This function runs on the GPU, it works on a 2D grid giving the current x, y pair being worked
- * - on, the const byte* is the original image being processed and the second byte* is the image
- * - being created using the prewitt filter. This function runs through a given x, y pair and uses 
- * - a prewitt filter to find whether or not the current pixel is an edge, the more of an edge it is
- * - the higher the value returned will be
- * 
- * Inputs: const byte* orig : the original image being evaluated
- *                byte* cpu : the image being created using the prewitt filter
- *               uint width : the width of the image
- *              uint height : the height of the image
- * 
- ***********************************************************************************************/
 __global__ void prewitt_gpu(const byte* orig, byte* cpu, const unsigned int width, const unsigned int height) {
     int x = threadIdx.x + blockIdx.x * blockDim.x;
     int y = threadIdx.y + blockIdx.y * blockDim.y;
@@ -36,25 +22,6 @@ __global__ void prewitt_gpu(const byte* orig, byte* cpu, const unsigned int widt
     }
 }
 
-/************************************************************************************************
- * int main(int, char*[])
- * - This function is our program's entry point. The function passes in the command line arguments
- * - and if there are exactly 2 command line arguments, the program will continue, otherwise it
- * - will exit with error code 1. If the program continues, it will read in the file given by 
- * - command line argument #2 and store as an array of bytes, after some header information is
- * - outputted, the prewitt filter will run in 3 different functions on the original image and
- * - 3 new images will be created, each containing a prewitt filter created using just the CPU, 
- * - OMP, and the GPU, then the image will be written out to a file with an appropriate indicator
- * - appended to the end of the filename.
- * 
- * Inputs:    int argc : the number of command line arguments
- *         char*argv[] : an array containing the command line arguments
- * Outputs:   returns 0: code ran successful, no issues came up
- *            returns 1: invalid number of command line arguments
- *            returns 2: unable to process input image
- *            returns 3: unable to write output image
- * 
- ***********************************************************************************************/
 int main(int argc, char*argv[]) {
     /** Check command line arguments **/
     if(argc != 2) {
@@ -152,21 +119,6 @@ int main(int argc, char*argv[]) {
     return 0;
 }
 
-/************************************************************************************************
- * void prewitt_cpu(const byte*, byte*, uint, uint);
- * - This function runs on just the CPU with nothing running in parallel. The function takes in 
- * - an original image and compares the pixels to the left and right and then above and below
- * - to find the rate of change of the two comparisons, then squares, adds, and square roots the
- * - pair to find a 'prewitt' value, this value is saved into an array of bytes and then loops to
- * - handle the next pixel. The resulting array of evaluated pixels should be of an image showing
- * - in black and white where edges appear in the original image.
- * 
- * Inputs: const byte* orig : the original image being evaluated
- *                byte* cpu : the image being created using the prewitt filter
- *               uint width : the width of the image
- *              uint height : the height of the image
- * 
- ***********************************************************************************************/
 void prewitt_cpu(const byte* orig, byte* cpu, const unsigned int width, const unsigned int height) {
     for(int y = 1; y < height-1; y++) {
         for(int x = 1; x < width-1; x++) {
